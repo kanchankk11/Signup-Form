@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "express": "^4.18.2",
+    "hbs": "^4.2.0",
+    "mongoose": "^6.8.4"
+  },
+  "name": "signup-form",
+  "version": "1.0.0",
+  "description": "Signup form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kanchankk11/Signup-Form.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kanchankk11/Signup-Form/issues"
+  },
+  "homepage": "https://github.com/kanchankk11/Signup-Form#readme"
+}
