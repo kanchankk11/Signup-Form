@@ -4,6 +4,7 @@ require('../db/connection');
 const Students = require('../models/students');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 const port = process.env.PORT || 3000;
 const app = express(); 
@@ -47,11 +48,14 @@ app.post("/register", async (req, res) =>{
                 password : secpass
             });
 
+            const token = await std.generateAuthToken();
+            //console.log(token);
             const result = await std.save();
             res.status(201).render("index");
         }
     } catch (error) {
-        
+        res.json(error)
+        console.log(error);
     }
 });
 
