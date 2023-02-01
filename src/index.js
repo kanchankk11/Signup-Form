@@ -1,12 +1,15 @@
+require('dotenv').config();
 const exp = require('constants');
 const express = require('express');
-require('../db/connection');
-const Students = require('../models/students');
+require('./db/connection');
+const Students = require('./models/students');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const auth = require('./middleware/auth');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 const app = express(); 
 const templatePath = path.join(__dirname,"../template/views");
 const staticpath = path.join(__dirname,"../public")
@@ -14,7 +17,7 @@ const staticpath = path.join(__dirname,"../public")
 app.set("view engine", "hbs");
 app.set("views", templatePath);
 app.use(express.static(staticpath));
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
@@ -27,8 +30,16 @@ app.get("/",(req,res) => {
     res.render("index");
 });
 
+app.get("/register", (req,res) => {
+    res.render("register");
+})
+
 app.get("/login", (req,res) => {
     res.render("login");
+})
+
+app.get('/private', auth, (req,res) => {
+    res.render("private");
 })
 
 app.post("/register", async (req, res) =>{
@@ -50,6 +61,7 @@ app.post("/register", async (req, res) =>{
 
             const token = await std.generateAuthToken();
             //console.log(token);
+
             const result = await std.save();
             res.status(201).render("index");
         }
@@ -71,8 +83,17 @@ app.post("/login", async (req, res) => {
         }
         else {
             const match = await bcrypt.compare(pass, result.password);
-
+            
+           // console.log(token);
             if (match) {
+                
+                const token = await result.generateAuthToken();
+                //*Storing the token in cookie
+                res.cookie("stdToken",token, {
+                    expires : new Date(Date.now() + 120000),
+                    httpOnly : true
+                });
+
                 res.status(200).send("Success");
             } else {
                 res.status(400).send("Incorrent credentials")

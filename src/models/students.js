@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
@@ -36,7 +37,7 @@ const stdSchema = mongoose.Schema({
 
 stdSchema.methods.generateAuthToken = async function(){
     try {
-        const generatedToken = jwt.sign({_id : this._id},"ASDFGHJKLPOIUYTREWQZXCVMNB");
+        const generatedToken = jwt.sign({_id : this._id},process.env.SECRET_KEY);
         //* Adding the generated token to our db
         this.tokens = this.tokens.concat({token : generatedToken});
         await this.save();
