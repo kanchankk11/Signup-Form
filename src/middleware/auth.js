@@ -14,11 +14,14 @@ const auth = async (req, res, next) => {
         //*Finding data against the cookie i.e token
         const user = await Students.findOne({_id : verifyUser._id});
 
+        req.token = token;
+        req.user = user;
         console.log(user);        
         next();
         //console.log(verifyUser);
     } catch (error) {
-        res.status(401).send(error);
+        //res.status(401).send(error);
+        res.render("login");
     }
 }
 

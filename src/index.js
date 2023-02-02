@@ -34,8 +34,20 @@ app.get("/register", (req,res) => {
     res.render("register");
 })
 
-app.get("/login", (req,res) => {
-    res.render("login");
+app.get("/login", auth, async (req,res) => {
+    
+    //* Clearing the token from DB
+
+    req.user.tokens = req.user.tokens.filter((eachToken) => {
+        return eachToken.token != req.token;
+    })
+
+    await req.user.save();
+    //! If the user is already logged in then he/she will be redirected to 'private' page
+    //? Else the auth will redirect it to login page and the below code will not execute
+    //* That is why below code is redirecting to 'private' page.
+
+    res.render("private");
 })
 
 app.get('/private', auth, (req,res) => {
@@ -44,6 +56,7 @@ app.get('/private', auth, (req,res) => {
 
 app.post("/register", async (req, res) =>{
     try {
+        
             const password = req.body.password;
             const repassword = req.body.repassword;
             const secpass = await securePass(password);
@@ -75,6 +88,7 @@ app.post("/login", async (req, res) => {
     const email = req.body.email;
     const pass = req.body.password;
     securePass(pass);
+
     try {
         const result = await Students.findOne({email});
         
@@ -94,13 +108,22 @@ app.post("/login", async (req, res) => {
                     httpOnly : true
                 });
 
-                res.status(200).send("Success");
+                res.status(200).render("private");
             } else {
                 res.status(400).send("Incorrent credentials")
             }
         }
     } catch (error) {
         console.log(error);
+    }
+});
+
+app.get('/logout', auth,  async (req, res) => {
+    try {
+        res.clearCookie("stdToken");
+        res.render("index");
+    } catch (error) {
+        res.status(500).send(error);
     }
 })
 
